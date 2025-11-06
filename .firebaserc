@@ -1,0 +1,8 @@
+{
+  "projects": {
+    "default": "the-last-gift",
+    "dev": "the-last-gift"
+  },
+  "targets": {},
+  "etags": {}
+}
