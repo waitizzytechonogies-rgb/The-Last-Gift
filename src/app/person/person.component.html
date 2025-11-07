@@ -22,36 +22,117 @@
   <div class="min-h-screen bg-[var(--secondary)] text-white font-sans">
     <div class="min-h-screen flex items-center justify-center">
       <div class="w-4/5 max-w-7xl py-8">
-        <!-- HERO: centered split layout -->
+        <!-- HERO: Edit toolbar appears at the top-right of the hero when logged in -->
         <section
-          class="min-h-screen grid grid-cols-1 md:grid-cols-2 gap-8 items-center"
+          class="relative min-h-screen grid grid-cols-1 md:grid-cols-2 gap-8 items-center"
         >
-          <!-- LEFT: Text content -->
-          <div class="flex flex-col justify-center md:pr-8">
+          <!-- EDIT BAR (visible only when logged in) -->
+          <div
+            *ngIf="isLoggedIn"
+            class="absolute top-6 right-6 z-20 flex gap-2 items-center"
+          >
+            <button
+              *ngIf="!editMode"
+              (click)="startEdit()"
+              class="bg-white/10 hover:bg-white/20 text-white py-2 px-3 rounded-md"
+              type="button"
+            >
+              Edit
+            </button>
+
+            <!-- Save / Cancel in edit mode -->
+            <ng-container *ngIf="editMode">
+              <button
+                (click)="saveEdit()"
+                class="bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-3 rounded-md"
+              >
+                Save
+              </button>
+              <button
+                (click)="cancelEdit()"
+                class="bg-transparent border border-white/20 hover:border-white/40 text-white py-2 px-3 rounded-md"
+              >
+                Cancel
+              </button>
+            </ng-container>
+          </div>
+
+          <!-- LEFT: Text content (editable fields shown when editMode) -->
+          <div class="flex flex-col justify-center md:pr-8 z-10">
             <p class="text-[1.5rem] font-light italic opacity-90">
               Our beloved,
             </p>
 
-            <p class="leading-[1] text-[4rem] font-extrabold mt-2">
-              <span class="block">{{ name }}</span>
+            <p class="leading-[1] text-[4.5rem] font-extrabold mt-2">
+              <span
+                class="block"
+                style="font-family: 'Parisienne', cursive"
+                *ngIf="!editMode"
+                >{{ name }}</span
+              >
+
+              <!-- Inline editable name -->
+              <input
+                *ngIf="editMode"
+                [(ngModel)]="editName"
+                class="w-full bg-transparent border-b border-white/30 focus:outline-none text-[3.5rem] md:text-[4.5rem] lg:text-[5.5rem] font-extrabold"
+              />
             </p>
 
             <blockquote
               class="mt-6 text-lg md:text-xl italic border-black border-l-4 pl-4 max-w-xl"
             >
-              {{ caption }}
+              <!-- Editable caption -->
+              <span *ngIf="!editMode">{{ caption }}</span>
+              <!-- <span
+                >Love was her profession — She taught it, lived it, and left it
+                with us.</span -->
+              >
+              <input
+                *ngIf="editMode"
+                [(ngModel)]="editCaption"
+                class="mt-2 w-full bg-transparent border-b border-white/20 focus:outline-none text-lg md:text-xl italic"
+              />
             </blockquote>
+
+            <!-- When editing, show a small hint for changing photo -->
+            <div *ngIf="editMode" class="mt-6">
+              <label class="inline-flex items-center gap-2 cursor-pointer">
+                <input
+                  type="file"
+                  accept="image/*"
+                  (change)="onFileChange($event)"
+                  class="hidden"
+                  #fileInput
+                />
+                <p
+                  type=""
+                  class="bg-white/10 hover:bg-white/20 text-white py-2 px-3 rounded-md"
+                >
+                  Choose photo
+                </p>
+                <span class="text-sm text-slate-200/80"
+                  >(PNG, JPG — will preview instantly)</span
+                >
+              </label>
+            </div>
           </div>
 
           <!-- RIGHT: Larger portrait without frame -->
           <div class="flex justify-center md:justify-end">
-            <!-- class="w-80 md:w-[520px] h-[640px] md:h-[700px] object-cover rounded-2xl shadow-2xl" -->
-            <img src="../../assets/meeka.jpeg" alt="{{ name }}" />
+            <!-- When editing, show live preview with slightly larger size -->
+            <img
+              [src]="previewImage || imageSrc"
+              alt="{{ name }}"
+              class="w-80 md:w-[520px] h-[640px] md:h-[700px] object-cover rounded-2xl shadow-2xl"
+            />
           </div>
         </section>
 
         <!-- About -->
-        <section class="mt-12 bg-[var(--primary)] p-8 rounded-lg text-white">
+        <section
+          class="mt-12 bg-[var(--primary)] text-[var(--secondary)] p-8 rounded-lg text-white"
+        >
           <h2 class="text-3xl mb-4">About Her Life</h2>
           <p class="leading-relaxed">{{ aboutText }}</p>
         </section>
@@ -59,15 +140,12 @@
         <!-- Testimonials -->
         <section class="mt-8 text-white">
           <h3 class="text-2xl mb-4">Children's Testimonials</h3>
-
           <div class="relative">
-            <!-- Mask / viewport -->
             <div
               class="overflow-hidden rounded-lg"
               (mouseenter)="stopAuto()"
               (mouseleave)="startAuto()"
             >
-              <!-- Slides wrapper -->
               <div
                 class="flex transition-transform duration-500 ease-in-out"
                 [style.transform]="'translateX(-' + currentIndex * 100 + '%)'"
@@ -75,10 +153,9 @@
                 (touchmove)="onTouchMove($event)"
                 (touchend)="onTouchEnd()"
               >
-                <!-- Single slide -->
                 <div
                   *ngFor="let t of testimonials"
-                  class="w-full flex-shrink-0 p-12 bg-[var(--primary)] min-h-[180px] flex flex-col justify-center"
+                  class="w-full flex-shrink-0 p-12 bg-[var(--primary)] text-[var(--secondary)] min-h-[180px] flex flex-col justify-center"
                   aria-live="polite"
                 >
                   <p class="text-lg md:text-xl italic">“{{ t.message }}”</p>
@@ -87,7 +164,6 @@
               </div>
             </div>
 
-            <!-- Prev / Next buttons -->
             <button
               (click)="prev()"
               class="absolute left-2 top-[45%] -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-2 rounded-full"
@@ -105,7 +181,6 @@
               ›
             </button>
 
-            <!-- Indicators -->
             <div class="flex justify-center gap-2 mt-4">
               <button
                 *ngFor="let _ of testimonials; let i = index"
@@ -125,7 +200,6 @@
         <!-- Gallery -->
         <section class="py-8">
           <h3 class="text-2xl mb-4 text-white">Gallery of Memories</h3>
-
           <div
             class="flex items-center gap-4 overflow-x-auto scroll-smooth snap-x snap-mandatory px-4"
           >

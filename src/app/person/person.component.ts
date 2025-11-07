@@ -3,11 +3,14 @@ import { Component } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
 import { PeopleService } from '../people.service';
+import { AuthService } from '../auth/auth.service';
+import { BrowserModule } from '@angular/platform-browser';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   standalone: true,
   selector: 'app-person',
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './person.component.html',
   styleUrls: ['./person.component.scss'],
 })
@@ -16,6 +19,13 @@ export class PersonComponent {
   qrUrl = '';
   downloading = false;
   copied = false;
+
+  editMode: boolean = false;
+  editName: string = '';
+  editCaption: string = '';
+  previewImage: string | null = null; // Data URL for live preview
+  imageSrc: string = '../../assets/meeka-latest.png';
+  isLoggedIn = this.authService.isLoggedIn;
 
   currentIndex: number = 0;
   autoPlay: boolean = true; // set to false to disable autoplay
@@ -27,7 +37,7 @@ export class PersonComponent {
   private touchDeltaX: number = 0;
   private swipeThreshold: number = 50; // px required to consider a swipe
 
-  name: string = 'Murial Pushparaj';
+  name: string = 'Muriel Pushparaj';
   caption: string = 'Love came down at Chrismas: so did she!';
 
   // Navigation / sections preview (editable)
@@ -39,7 +49,8 @@ export class PersonComponent {
     },
     {
       title: "Children's Testimonials",
-      excerpt: 'Short notes and photos from her children.',
+      excerpt:
+        'Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.',
     },
     { title: 'Friends & Family Wishes', excerpt: 'Messages from loved ones.' },
     {
@@ -53,7 +64,8 @@ export class PersonComponent {
   testimonials = [
     {
       author: 'Asha (daughter)',
-      message: 'You taught me everything—kindness first.',
+      message:
+        'You taught me everything—kindness first. Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.',
     },
     { author: 'Ravi (son)', message: 'My first mentor and forever guide.' },
     {
@@ -88,7 +100,7 @@ export class PersonComponent {
   constructor(
     private route: ActivatedRoute,
     private ps: PeopleService,
-    private router: Router
+    private authService: AuthService
   ) {
     const id = this.route.snapshot.paramMap.get('id')!;
     this.ps.get(id).then((p) => {
@@ -163,5 +175,69 @@ export class PersonComponent {
     this.touchStartX = null;
     this.touchDeltaX = 0;
     if (this.autoPlay) this.startAuto(); // resume autoplay after interaction
+  }
+
+  startEdit() {
+    this.editMode = true;
+    this.editName = this.name;
+    this.editCaption = this.caption;
+    this.previewImage = null; // keep current preview blank unless user selects new file
+  }
+
+  cancelEdit() {
+    this.editMode = false;
+    this.editName = '';
+    this.editCaption = '';
+    this.previewImage = null;
+  }
+
+  /**
+   * onFileChange
+   * reads the chosen file as Data URL and sets previewImage so your template shows it immediately.
+   * Note: for production do an upload and save the returned URL instead of storing data URLs.
+   */
+  onFileChange(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+
+      // Optional: small validation example (unobtrusive, adjust as needed)
+      const maxSizeMb = 5;
+      if (file.size > maxSizeMb * 1024 * 1024) {
+        // You can show a toast / validation message in your app
+        console.warn(`Selected file is larger than ${maxSizeMb}MB.`);
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e: ProgressEvent<FileReader>) => {
+        this.previewImage = (e.target as FileReader).result as string;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  /**
+   * saveEdit
+   * Applies the edits to the visible hero and persists to localStorage as an example.
+   * Replace the localStorage block with an API call to persist on server.
+   */
+  saveEdit() {
+    if (this.editName) this.name = this.editName;
+    if (this.editCaption) this.caption = this.editCaption;
+    if (this.previewImage) this.imageSrc = this.previewImage;
+
+    const payload = {
+      name: this.name,
+      caption: this.caption,
+      imageSrc: this.imageSrc,
+    };
+    try {
+      localStorage.setItem('memorial_hero', JSON.stringify(payload));
+    } catch (e) {
+      console.warn('Could not save hero to localStorage', e);
+    }
+
+    this.editMode = false;
   }
 }
