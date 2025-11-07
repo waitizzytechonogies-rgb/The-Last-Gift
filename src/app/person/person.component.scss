@@ -1,0 +1,47 @@
+.typewrap {
+  font-weight: 800;
+  font-size: 5.5rem;
+  color: #fff;
+}
+
+/* typing text: make sure steps(12) matches width:12ch */
+.type {
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  width: 0ch; /* start hidden */
+  animation: typeDelete 4.5s steps(12, end) infinite;
+}
+
+/* caret */
+.caret {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  background: currentColor;
+  margin-left: 6px;
+  vertical-align: bottom;
+  animation: blink 0.8s steps(1) infinite;
+}
+
+/* Keyframes: type → hold → delete → repeat */
+@keyframes typeDelete {
+  0% {
+    width: 0ch;
+  }
+  40% {
+    width: 12ch;
+  } /* fully typed */
+  60% {
+    width: 12ch;
+  } /* hold */
+  100% {
+    width: 0ch;
+  } /* deleted */
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
