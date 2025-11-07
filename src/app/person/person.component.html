@@ -27,7 +27,7 @@
           class="relative min-h-screen grid grid-cols-1 md:grid-cols-2 gap-8 items-center"
         >
           <!-- EDIT BAR (visible only when logged in) -->
-          <div
+          <!-- <div
             *ngIf="isLoggedIn"
             class="absolute top-6 right-6 z-20 flex gap-2 items-center"
           >
@@ -40,7 +40,6 @@
               Edit
             </button>
 
-            <!-- Save / Cancel in edit mode -->
             <ng-container *ngIf="editMode">
               <button
                 (click)="saveEdit()"
@@ -55,7 +54,7 @@
                 Cancel
               </button>
             </ng-container>
-          </div>
+          </div> -->
 
           <!-- LEFT: Text content (editable fields shown when editMode) -->
           <div class="flex flex-col justify-center md:pr-8 z-10">
