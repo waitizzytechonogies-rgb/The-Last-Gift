@@ -1,19 +1,19 @@
 <div *ngIf="person; else loading">
   <!-- Header -->
-  <section>
+  <section class="relative z-[100]">
     <div
-      class="h-[80px] shadow bg-[var(--primary)] flex flex-col md:flex-row items-center justify-between px-6 text-[var(--secondary)]"
+      class="h-[80px] shadow bg-[var(--primary)] flex items-center justify-between px-6 text-[var(--secondary)]"
     >
-      <div class="px-6 flex items-center gap-2">
+      <div class="flex items-center gap-2">
         <img src="../../assets/logo.png" alt="Memories logo" class="w-20" />
         <span class="font-bold text-2xl">Memories</span>
         <span class="text-[#e6007e] font-bold text-2xl">.</span>
       </div>
-      <div class="flex gap-8 items-center justify-between">
-        <span>Create memory with your loved one</span>
-        <span>Contact</span>
-        <span>About</span>
-        <span>Services</span>
+      <div class="hidden md:flex lg:flex gap-8 items-center justify-between">
+        <span class="cursor-pointer">Create memory with your loved one</span>
+        <span class="cursor-pointer">Contact</span>
+        <span class="cursor-pointer">About</span>
+        <span class="cursor-pointer">Download QR</span>
       </div>
     </div>
   </section>
@@ -21,41 +21,11 @@
   <!-- Main container -->
   <div class="min-h-screen bg-[var(--secondary)] text-white font-sans">
     <div class="min-h-screen flex items-center justify-center">
-      <div class="w-4/5 max-w-7xl">
+      <div class="max-w-7xl -mt-10 w-4/5">
         <!-- HERO: Edit toolbar appears at the top-right of the hero when logged in -->
         <section
           class="relative min-h-screen grid grid-cols-1 md:grid-cols-2 gap-8 items-center"
         >
-          <!-- EDIT BAR (visible only when logged in) -->
-          <!-- <div
-            *ngIf="isLoggedIn"
-            class="absolute top-6 right-6 z-20 flex gap-2 items-center"
-          >
-            <button
-              *ngIf="!editMode"
-              (click)="startEdit()"
-              class="bg-white/10 hover:bg-white/20 text-white py-2 px-3 rounded-md"
-              type="button"
-            >
-              Edit
-            </button>
-
-            <ng-container *ngIf="editMode">
-              <button
-                (click)="saveEdit()"
-                class="bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-3 rounded-md"
-              >
-                Save
-              </button>
-              <button
-                (click)="cancelEdit()"
-                class="bg-transparent border border-white/20 hover:border-white/40 text-white py-2 px-3 rounded-md"
-              >
-                Cancel
-              </button>
-            </ng-container>
-          </div> -->
-
           <!-- LEFT: Text content (editable fields shown when editMode) -->
           <div class="flex flex-col justify-center md:pr-8 z-10">
             <p class="text-[1.5rem] font-light italic opacity-90">
@@ -63,65 +33,27 @@
             </p>
 
             <p class="leading-[1] text-[4.5rem] font-extrabold mt-2">
-              <span
-                class="block"
-                style="font-family: 'Parisienne', cursive"
-                *ngIf="!editMode"
-                >{{ name }}</span
-              >
-
-              <!-- Inline editable name -->
-              <input
-                *ngIf="editMode"
-                [(ngModel)]="editName"
-                class="w-full bg-transparent border-b border-white/30 focus:outline-none text-[3.5rem] md:text-[4.5rem] lg:text-[5.5rem] font-extrabold"
-              />
+              <span class="block" style="font-family: 'Parisienne', cursive">{{
+                name
+              }}</span>
             </p>
 
             <blockquote
               class="mt-6 text-lg md:text-xl italic border-black border-l-4 pl-4 max-w-xl"
             >
-              <!-- Editable caption -->
-              <span *ngIf="!editMode">{{ caption }}</span>
+              <span>{{ caption }}</span>
               <!-- <span
                 >Love was her profession — She taught it, lived it, and left it
-                with us.</span -->
-              >
-              <input
-                *ngIf="editMode"
-                [(ngModel)]="editCaption"
-                class="mt-2 w-full bg-transparent border-b border-white/20 focus:outline-none text-lg md:text-xl italic"
-              />
+                with us.</span 
+              >-->
             </blockquote>
-
-            <!-- When editing, show a small hint for changing photo -->
-            <div *ngIf="editMode" class="mt-6">
-              <label class="inline-flex items-center gap-2 cursor-pointer">
-                <input
-                  type="file"
-                  accept="image/*"
-                  (change)="onFileChange($event)"
-                  class="hidden"
-                  #fileInput
-                />
-                <p
-                  type=""
-                  class="bg-white/10 hover:bg-white/20 text-white py-2 px-3 rounded-md"
-                >
-                  Choose photo
-                </p>
-                <span class="text-sm text-slate-200/80"
-                  >(PNG, JPG — will preview instantly)</span
-                >
-              </label>
-            </div>
           </div>
 
           <!-- RIGHT: Larger portrait without frame -->
           <div class="flex justify-center md:justify-end">
             <!-- When editing, show live preview with slightly larger size -->
             <img
-              [src]="previewImage || imageSrc"
+              src="../../assets/meeka-latest.png"
               alt="{{ name }}"
               class="w-80 md:w-[520px] h-[640px] md:h-[700px] object-cover rounded-2xl shadow-2xl"
             />

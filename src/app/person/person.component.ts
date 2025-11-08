@@ -20,13 +20,6 @@ export class PersonComponent {
   downloading = false;
   copied = false;
 
-  editMode: boolean = false;
-  editName: string = '';
-  editCaption: string = '';
-  previewImage: string | null = null; // Data URL for live preview
-  imageSrc: string = '../../assets/meeka-latest.png';
-  isLoggedIn = this.authService.isLoggedIn;
-
   currentIndex: number = 0;
   autoPlay: boolean = true; // set to false to disable autoplay
   autoPlayDelay: number = 5000; // ms between slides
@@ -175,69 +168,5 @@ export class PersonComponent {
     this.touchStartX = null;
     this.touchDeltaX = 0;
     if (this.autoPlay) this.startAuto(); // resume autoplay after interaction
-  }
-
-  startEdit() {
-    this.editMode = true;
-    this.editName = this.name;
-    this.editCaption = this.caption;
-    this.previewImage = null; // keep current preview blank unless user selects new file
-  }
-
-  cancelEdit() {
-    this.editMode = false;
-    this.editName = '';
-    this.editCaption = '';
-    this.previewImage = null;
-  }
-
-  /**
-   * onFileChange
-   * reads the chosen file as Data URL and sets previewImage so your template shows it immediately.
-   * Note: for production do an upload and save the returned URL instead of storing data URLs.
-   */
-  onFileChange(event: Event) {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files[0]) {
-      const file = input.files[0];
-
-      // Optional: small validation example (unobtrusive, adjust as needed)
-      const maxSizeMb = 5;
-      if (file.size > maxSizeMb * 1024 * 1024) {
-        // You can show a toast / validation message in your app
-        console.warn(`Selected file is larger than ${maxSizeMb}MB.`);
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = (e: ProgressEvent<FileReader>) => {
-        this.previewImage = (e.target as FileReader).result as string;
-      };
-      reader.readAsDataURL(file);
-    }
-  }
-
-  /**
-   * saveEdit
-   * Applies the edits to the visible hero and persists to localStorage as an example.
-   * Replace the localStorage block with an API call to persist on server.
-   */
-  saveEdit() {
-    if (this.editName) this.name = this.editName;
-    if (this.editCaption) this.caption = this.editCaption;
-    if (this.previewImage) this.imageSrc = this.previewImage;
-
-    const payload = {
-      name: this.name,
-      caption: this.caption,
-      imageSrc: this.imageSrc,
-    };
-    try {
-      localStorage.setItem('memorial_hero', JSON.stringify(payload));
-    } catch (e) {
-      console.warn('Could not save hero to localStorage', e);
-    }
-
-    this.editMode = false;
   }
 }
