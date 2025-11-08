@@ -1,0 +1,65 @@
+<div
+  *ngIf="open"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="testimonial-title"
+  class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50"
+>
+  <div class="bg-white w-11/12 sm:w-[560px] rounded p-6">
+    <h4 id="testimonial-title" class="text-lg font-semibold mb-3">
+      {{ isEditing ? "Edit" : "Add" }} Testimonial
+    </h4>
+
+    <label class="block mb-2">
+      <div class="text-sm text-slate-600">Name</div>
+      <input
+        id="tm-name"
+        [(ngModel)]="local.name"
+        class="w-full border rounded px-3 py-2"
+      />
+    </label>
+
+    <label class="block mb-2">
+      <div class="text-sm text-slate-600">Relationship</div>
+      <input
+        [(ngModel)]="local.relationship"
+        class="w-full border rounded px-3 py-2"
+      />
+    </label>
+
+    <label class="block mb-2">
+      <div class="text-sm text-slate-600">Message</div>
+      <textarea
+        rows="4"
+        [(ngModel)]="local.message"
+        class="w-full border rounded px-3 py-2"
+      ></textarea>
+    </label>
+
+    <label class="block mb-2">
+      <div class="text-sm text-slate-600">Photo</div>
+      <input type="file" accept="image/*" (change)="onFile($event)" />
+      <div
+        *ngIf="local.photoPreview"
+        class="mt-2 w-24 h-28 overflow-hidden rounded"
+      >
+        <img [src]="local.photoPreview" class="w-full h-full object-cover" />
+      </div>
+    </label>
+
+    <div class="flex gap-2 justify-end mt-4">
+      <button
+        (click)="handleSave()"
+        class="bg-[#1F223A] text-white px-4 py-2 rounded"
+      >
+        Save
+      </button>
+      <button
+        (click)="handleCancel()"
+        class="bg-transparent border px-4 py-2 rounded"
+      >
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>

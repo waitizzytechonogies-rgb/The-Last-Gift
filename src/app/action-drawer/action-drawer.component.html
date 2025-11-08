@@ -1,0 +1,244 @@
+<div class="fixed inset-0 z-50 pointer-events-none" [class.hidden]="!open">
+  <!-- backdrop -->
+  <div
+    class="absolute inset-0 bg-black/50 pointer-events-auto"
+    (click)="onClose()"
+    aria-hidden="true"
+  ></div>
+
+  <!-- drawer: vertical scrolling enabled -->
+  <aside
+    class="absolute right-0 top-0 h-full w-full sm:w-[640px] bg-[var(--secondary)] text-[var(--primary)] pointer-events-auto transform transition-transform duration-300 overflow-y-auto"
+    [ngClass]="{ 'translate-x-0': open, 'translate-x-full': !open }"
+    role="dialog"
+    aria-modal="true"
+  >
+    <!-- Sticky header (Customize) -->
+    <div
+      class="sticky top-0 z-30 bg-[var(--primary)] text-[var(--secondary)] border-b"
+    >
+      <div class="flex items-center justify-between px-6 py-4">
+        <h3 class="text-lg font-semibold">Customize</h3>
+        <button
+          class="text-slate-500 hover:opacity-80"
+          (click)="onClose()"
+          aria-label="Close drawer"
+        >
+          ✕
+        </button>
+      </div>
+    </div>
+
+    <!-- Scrollable content area -->
+    <div class="p-6 space-y-4 text-black">
+      <!-- Basic hero fields -->
+      <label class="block">
+        <div class="text-sm text-white mb-1">Name</div>
+        <input
+          [(ngModel)]="localName"
+          class="w-full border rounded px-3 py-2"
+        />
+      </label>
+
+      <label class="block">
+        <div class="text-sm text-white mb-1">Caption</div>
+        <input
+          [(ngModel)]="localCaption"
+          class="w-full border rounded px-3 py-2"
+        />
+      </label>
+
+      <!-- Theme colors -->
+      <div class="grid grid-cols-2 gap-4">
+        <label class="block">
+          <div class="text-sm text-white mb-1">Primary color</div>
+          <input
+            type="color"
+            [(ngModel)]="localPrimary"
+            class="w-full h-10 p-0 border rounded"
+          />
+        </label>
+        <label class="block">
+          <div class="text-sm text-white mb-1">Secondary color</div>
+          <input
+            type="color"
+            [(ngModel)]="localSecondary"
+            class="w-full h-10 p-0 border rounded"
+          />
+        </label>
+      </div>
+
+      <!-- Gender and About -->
+      <!-- <div class="grid grid-cols-2 gap-4"> -->
+      <label class="block">
+        <div class="text-sm text-white mb-1">Gender</div>
+        <select
+          [(ngModel)]="localGender"
+          class="w-full border rounded px-3 py-2"
+        >
+          <option value="female">Female</option>
+          <option value="male">Male</option>
+          <option value="other">Other</option>
+        </select>
+      </label>
+      <label class="block">
+        <div class="text-sm text-white mb-1">About</div>
+        <textarea
+          rows="3"
+          [(ngModel)]="localAbout"
+          class="w-full border rounded px-3 py-2"
+        ></textarea>
+      </label>
+      <!-- </div> -->
+
+      <!-- Portrait -->
+      <label class="block">
+        <div class="text-sm text-white mb-1">Portrait</div>
+        <div class="flex items-start gap-4">
+          <div
+            class="w-28 h-36 bg-slate-100 rounded overflow-hidden flex items-center justify-center"
+          >
+            <img
+              *ngIf="localPreview || localImageSrc"
+              [src]="localPreview || localImageSrc"
+              alt="preview"
+              class="w-full h-full object-cover"
+            />
+            <span
+              *ngIf="!localPreview && !localImageSrc"
+              class="text-xs text-slate-400"
+              >No image</span
+            >
+          </div>
+          <div class="flex-1">
+            <input
+              class="border rounded text-white text-sm"
+              type="file"
+              accept="image/*"
+              (change)="onPortraitFile($event)"
+            />
+            <p class="text-xs text-slate-500 mt-2">
+              PNG, JPG — will preview instantly. Images are compressed before
+              saving.
+            </p>
+          </div>
+        </div>
+      </label>
+
+      <!-- Testimonials manager -->
+      <div class="border-t pt-4">
+        <div class="flex items-center justify-between text-white">
+          <h4 class="font-semibold">Testimonials</h4>
+          <button
+            class="text-sm bg-white/10 px-3 py-1 rounded"
+            (click)="openTestimonialModal()"
+          >
+            Add
+          </button>
+        </div>
+
+        <div class="mt-3 space-y-2">
+          <div
+            *ngFor="let t of localTestimonials; let i = index"
+            class="flex items-center justify-between bg-white/20 p-2 rounded"
+          >
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-12 bg-white rounded overflow-hidden">
+                <img
+                  *ngIf="t.photo"
+                  [src]="t.photo"
+                  class="w-full h-full object-cover"
+                />
+              </div>
+              <div>
+                <div class="text-sm font-medium">
+                  {{ t.name }}
+                  <span class="text-xs">— {{ t.relationship }}</span>
+                </div>
+                <div class="text-xs italic">"{{ t.message }}"</div>
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <button
+                (click)="editTestimonial(i)"
+                class="text-xs px-2 py-1 bg-white/10 rounded"
+              >
+                Edit
+              </button>
+              <button
+                (click)="deleteTestimonial(i)"
+                class="text-xs px-2 py-1 bg-red-600 rounded text-white"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Album uploader -->
+      <div class="border-t pt-4">
+        <div class="flex items-center justify-between text-white">
+          <h4 class="font-semibold">Album photos</h4>
+          <div>
+            <input
+              type="file"
+              accept="image/*"
+              class="border rounded text-white text-sm"
+              multiple
+              (change)="onAlbumFiles($event)"
+            />
+          </div>
+        </div>
+
+        <div class="mt-3 grid grid-cols-4 gap-2">
+          <div
+            *ngFor="let g of localGallery; let gi = index"
+            class="w-full h-20 bg-slate-100 rounded overflow-hidden relative"
+          >
+            <img [src]="g" class="w-full h-full object-cover" />
+            <button
+              (click)="removeGallery(gi)"
+              class="absolute top-1 right-1 bg-black/50 text-white rounded-full w-6 h-6 text-xs"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- spacer so sticky footer doesn't overlap content -->
+      <div class="h-24"></div>
+    </div>
+
+    <!-- Sticky footer with actions (always visible) -->
+    <div class="sticky bottom-0 z-30 bg-[var(--secondary)] p-4 border-t">
+      <div class="flex items-center gap-3 justify-end">
+        <button
+          (click)="onSave()"
+          class="bg-[#1F223A] text-white px-4 py-2 rounded"
+        >
+          Save changes
+        </button>
+        <button
+          (click)="onClose()"
+          class="bg-transparent border px-4 py-2 rounded"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- testimonial modal (standalone component) -->
+<app-testimonial-modal
+  [open]="testimonialModalOpen"
+  [testimonial]="
+    editingTestimonialIndex !== null
+      ? localTestimonials[editingTestimonialIndex]
+      : null
+  "
+  (save)="onTestimonialModalSave($event)"
+  (cancel)="closeTestimonialModal()"
+></app-testimonial-modal>

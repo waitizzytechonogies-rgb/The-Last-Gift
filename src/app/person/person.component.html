@@ -1,12 +1,12 @@
 <div *ngIf="person; else loading">
   <!-- Header -->
-  <section class="relative z-[100]">
+  <section class="relative">
     <div
       class="h-[80px] shadow bg-[var(--primary)] flex items-center justify-between px-6 text-[var(--secondary)]"
     >
-      <div class="flex items-center gap-2">
+      <div class="flex items-center">
         <img src="../../assets/logo.png" alt="Memories logo" class="w-20" />
-        <span class="font-bold text-2xl">Memories</span>
+        <span class="font-bold text-2xl">Memories</span> &nbsp;
         <span class="text-[#e6007e] font-bold text-2xl">.</span>
       </div>
       <div class="hidden md:flex lg:flex gap-8 items-center justify-between">
@@ -20,8 +20,20 @@
 
   <!-- Main container -->
   <div class="min-h-screen bg-[var(--secondary)] text-white font-sans">
+    <div
+      class="absolute flex items-center justify-end right-5 top-24"
+      *ngIf="isLoggedIn"
+    >
+      <button
+        type="button"
+        class="border p-2 rounded w-[100px]"
+        (click)="edit()"
+      >
+        Edit
+      </button>
+    </div>
     <div class="min-h-screen flex items-center justify-center">
-      <div class="max-w-7xl -mt-10 w-4/5">
+      <div class="max-w-7xl w-4/5 mt-12 md:-mt-6">
         <!-- HERO: Edit toolbar appears at the top-right of the hero when logged in -->
         <section
           class="relative min-h-screen grid grid-cols-1 md:grid-cols-2 gap-8 items-center"
@@ -53,7 +65,7 @@
           <div class="flex justify-center md:justify-end">
             <!-- When editing, show live preview with slightly larger size -->
             <img
-              src="../../assets/meeka-latest.png"
+              [src]="[imageSrc || '../../assets/meeka-latest.png']"
               alt="{{ name }}"
               class="w-80 md:w-[520px] h-[640px] md:h-[700px] object-cover rounded-2xl shadow-2xl"
             />
@@ -149,8 +161,22 @@
 
 <ng-template #loading>
   <div
-    class="min-h-screen flex items-center justify-center bg-[var(--secondary)] text-white"
+    class="min-h-screen flex flex-col items-center justify-center gap-4 bg-[var(--secondary)] text-white"
   >
-    Loading...
+    <img
+      src="../../assets/logo.png"
+      alt="Memories logo"
+      class="w-24 animate-pulse"
+    />
+    <p class="text-lg tracking-wide">Loading memories...</p>
   </div>
 </ng-template>
+
+<app-action-drawer
+  [open]="drawerOpen"
+  [name]="name"
+  [caption]="caption"
+  [imageSrc]="imageSrc"
+  [testimonials]="testimonials"
+  (close)="onClose()"
+></app-action-drawer>

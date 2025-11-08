@@ -6,11 +6,12 @@ import { PeopleService } from '../people.service';
 import { AuthService } from '../auth/auth.service';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
+import { ActionDrawerComponent } from '../action-drawer/action-drawer.component';
 
 @Component({
   standalone: true,
   selector: 'app-person',
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, ActionDrawerComponent],
   templateUrl: './person.component.html',
   styleUrls: ['./person.component.scss'],
 })
@@ -89,6 +90,10 @@ export class PersonComponent {
     'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=400&q=60',
     'https://images.unsplash.com/photo-1517816743773-6e0fd518b4a6?auto=format&fit=crop&w=400&q=60',
   ];
+  imageSrc: string | null = null;
+  drawerOpen = false;
+
+  isLoggedIn = !!this.authService.currentUser;
 
   constructor(
     private route: ActivatedRoute,
@@ -168,5 +173,40 @@ export class PersonComponent {
     this.touchStartX = null;
     this.touchDeltaX = 0;
     if (this.autoPlay) this.startAuto(); // resume autoplay after interaction
+  }
+
+  edit() {
+    this.openDrawer();
+  }
+
+  // open the drawer (for example call from Edit button)
+  openDrawer() {
+    this.drawerOpen = true;
+  }
+
+  // handle close (no changes applied)
+  onClose() {
+    this.drawerOpen = false;
+  }
+
+  // handle save — payload: { name, caption, imageSrc }
+  onSave(payload: { name: string; caption: string; imageSrc: string | null }) {
+    // apply updates
+    if (payload.name) this.name = payload.name;
+    if (payload.caption) this.caption = payload.caption;
+    if (payload.imageSrc) this.imageSrc = payload.imageSrc;
+
+    // persist (same key you used earlier)
+    localStorage.setItem(
+      'memorial_hero',
+      JSON.stringify({
+        name: this.name,
+        caption: this.caption,
+        imageSrc: this.imageSrc,
+      })
+    );
+
+    // close drawer
+    this.drawerOpen = false;
   }
 }
