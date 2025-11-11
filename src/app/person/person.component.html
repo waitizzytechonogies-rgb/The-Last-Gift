@@ -20,7 +20,7 @@
 
   <!-- Main container -->
   <div class="min-h-screen bg-[var(--secondary)] text-white font-sans">
-    <div
+    <!-- <div
       class="absolute flex items-center justify-end right-5 top-24"
       *ngIf="isLoggedIn"
     >
@@ -31,7 +31,7 @@
       >
         Edit
       </button>
-    </div>
+    </div> -->
     <div class="min-h-screen flex items-center justify-center">
       <div class="max-w-7xl w-4/5 mt-12 md:-mt-6">
         <!-- HERO: Edit toolbar appears at the top-right of the hero when logged in -->
@@ -73,12 +73,15 @@
         </section>
 
         <!-- About -->
-        <section
-          class="mt-12 bg-[var(--primary)] text-[var(--secondary)] p-8 rounded-lg text-white"
-        >
-          <h2 class="text-3xl mb-4">About Her Life</h2>
-          <p class="leading-relaxed">{{ aboutText }}</p>
-        </section>
+        <div>
+          <h3 class="text-2xl mb-4">About Her Life</h3>
+          <section
+            class="mt-12 bg-[var(--primary)] text-[var(--secondary)] p-8 rounded-lg text-white"
+          >
+            <!-- <h2 class="text-3xl mb-4 text-black" >About Her Life</h2> -->
+            <p class="leading-relaxed">{{ aboutText }}</p>
+          </section>
+        </div>
 
         <!-- Testimonials -->
         <section class="mt-8 text-white">
@@ -148,8 +151,22 @@
           >
             <img
               *ngFor="let g of gallery"
-              [src]="g"
-              alt="memory"
+              [src]="'../../assets/images/meeka/' + g"
+              [alt]="g"
+              class="flex-shrink-0 w-80 h-80 rounded-lg object-cover snap-center transition-transform duration-300 hover:scale-105"
+            />
+          </div>
+        </section>
+
+        <section class="py-8">
+          <h3 class="text-2xl mb-4 text-white">Solo</h3>
+          <div
+            class="flex items-center gap-4 overflow-x-auto scroll-smooth snap-x snap-mandatory px-4"
+          >
+            <img
+              *ngFor="let g of gallerySolo"
+              [src]="'../../assets/images/meeka-solo/' + g"
+              [alt]="g"
               class="flex-shrink-0 w-80 h-80 rounded-lg object-cover snap-center transition-transform duration-300 hover:scale-105"
             />
           </div>

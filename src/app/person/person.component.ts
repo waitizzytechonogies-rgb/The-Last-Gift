@@ -7,6 +7,7 @@ import { AuthService } from '../auth/auth.service';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { ActionDrawerComponent } from '../action-drawer/action-drawer.component';
+import { GALLERY, GALLERY_SOLO } from '../shared/constants';
 
 @Component({
   standalone: true,
@@ -80,16 +81,8 @@ export class PersonComponent {
     },
   ];
 
-  gallery: string[] = [
-    'https://images.unsplash.com/photo-1507120410856-1f35574c3b45?auto=format&fit=crop&w=400&q=60',
-    'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=400&q=60',
-    'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=400&q=60',
-    'https://images.unsplash.com/photo-1517816743773-6e0fd518b4a6?auto=format&fit=crop&w=400&q=60',
-    'https://images.unsplash.com/photo-1507120410856-1f35574c3b45?auto=format&fit=crop&w=400&q=60',
-    'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=400&q=60',
-    'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=400&q=60',
-    'https://images.unsplash.com/photo-1517816743773-6e0fd518b4a6?auto=format&fit=crop&w=400&q=60',
-  ];
+  gallery: string[] = GALLERY;
+  gallerySolo: string[] = GALLERY_SOLO;
   imageSrc: string | null = null;
   drawerOpen = false;
 
