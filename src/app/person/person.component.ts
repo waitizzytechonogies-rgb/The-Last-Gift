@@ -2,11 +2,12 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
-import { PeopleService } from '../people.service';
 import { AuthService } from '../auth/auth.service';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { ActionDrawerComponent } from '../action-drawer/action-drawer.component';
+import { People } from '../interfaces/people';
+import { PeopleService } from '../services/people/people.services';
 
 @Component({
   standalone: true,
@@ -16,7 +17,7 @@ import { ActionDrawerComponent } from '../action-drawer/action-drawer.component'
   styleUrls: ['./person.component.scss'],
 })
 export class PersonComponent {
-  person: any = null;
+  person: People | null = {};
   qrUrl = '';
   downloading = false;
   copied = false;
@@ -100,10 +101,12 @@ export class PersonComponent {
     private ps: PeopleService,
     private authService: AuthService
   ) {
+    this.getPerson();
+  }
+
+  async getPerson() {
     const id = this.route.snapshot.paramMap.get('id')!;
-    this.ps.get(id).then((p) => {
-      this.person = p;
-    });
+    this.person = await this.ps.get(id);
   }
 
   ngOnInit(): void {

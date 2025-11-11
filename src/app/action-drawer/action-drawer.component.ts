@@ -1,15 +1,9 @@
 import { CommonModule } from '@angular/common';
-import {
-  Component,
-  EventEmitter,
-  Input,
-  OnChanges,
-  OnInit,
-  Output,
-  SimpleChanges,
-} from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TestimonialModalComponent } from '../testimonial/testimonial.component';
+import { People } from '../interfaces/people';
+import { PeopleService } from '../services/people/people.services';
 
 @Component({
   standalone: true,
@@ -17,45 +11,33 @@ import { TestimonialModalComponent } from '../testimonial/testimonial.component'
   selector: 'app-action-drawer',
   templateUrl: './action-drawer.component.html',
 })
-export class ActionDrawerComponent implements OnInit, OnChanges {
+export class ActionDrawerComponent implements OnInit {
   @Input() open = false;
-  @Input() name = '';
-  @Input() caption = '';
-  @Input() imageSrc: string | null = null;
-  @Input() primary = '#e6dccf';
-  @Input() secondary = '#1f4d47';
-  @Input() gender: 'female' | 'male' | 'other' = 'female';
-  @Input() about: string = '';
-  @Input() testimonials: any[] = [];
-  @Input() gallery: string[] = [];
+  profile: People | null = null;
+  @Input() set person(value: People | null) {
+    this.profile = value;
+    this.initializeAttributes();
+  }
 
   // @Output() save = new EventEmitter<any>();
   @Output() close = new EventEmitter<void>();
 
-  // local editable copies
-  localName: string = '';
-  localCaption: string = '';
-  localImageSrc: string | null = null; // initial image
-  localPreview: string | null = null; // new selected image preview
-  localPrimary: string = '#e6dccf';
-  localSecondary: string = '#1f4d47';
-  localGender: string = 'female';
-  localAbout: string = '';
+  name: string = '';
+  caption: string = '';
+  primary: string = '#e6dccf';
+  secondary: string = '#1f4d47';
+  gender: string = '';
+  about: string = '';
+  imageSrc: string | null = '';
+  imageSrcPreview: File | null = null;
 
-  // testimonials manager
-  localTestimonials: any[] = [];
-  testimonialModalOpen = false;
-  editingTestimonialIndex: number | null = null;
-  tm: any = {
-    name: '',
-    relationship: '',
-    message: '',
-    file: null,
-    preview: null,
-  };
+  testimonialModalOpen: any;
+  editingTestimonialIndex: any;
 
   // gallery
   localGallery: string[] = [];
+
+  constructor(private peopleService: PeopleService) {}
 
   private _onKeyDown = (e: KeyboardEvent) => {
     if (e.key === 'Escape') {
@@ -68,44 +50,21 @@ export class ActionDrawerComponent implements OnInit, OnChanges {
   };
 
   ngOnInit() {
-    this.initLocal();
     window.addEventListener('keydown', this._onKeyDown);
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['open'] && this.open) {
-      this.initLocal();
-      // focus first input when opening drawer
-      setTimeout(() => {
-        const el = document.querySelector('#drawer input');
-        (el as HTMLElement | null)?.focus?.();
-      }, 0);
-    }
   }
 
   ngOnDestroy() {
     window.removeEventListener('keydown', this._onKeyDown);
   }
 
-  initLocal() {
-    this.localName = this.name || '';
-    this.localCaption = this.caption || '';
-    this.localImageSrc = this.imageSrc || null;
-    this.localPreview = null;
-    this.localPrimary = this.primary || '#e6dccf';
-    this.localSecondary = this.secondary || '#1f4d47';
-    this.localGender = this.gender || 'female';
-    this.localAbout = this.about || '';
-
-    // deep copy testimonials and normalize shape
-    this.localTestimonials = (this.testimonials || []).map((t: any) => ({
-      name: t.name ?? t.author ?? '',
-      relationship: t.relationship ?? t.relation ?? '',
-      message: t.message ?? t.text ?? '',
-      photo: t.photo ?? t.image ?? null,
-    }));
-
-    this.localGallery = (this.gallery || []).slice();
+  initializeAttributes() {
+    this.name = this.profile?.name || '';
+    this.caption = this.profile?.caption || '';
+    this.primary = this.profile?.primary || '#e6dccf';
+    this.secondary = this.profile?.secondary || '#1f4d47';
+    this.gender = this.profile?.gender || '';
+    this.about = this.profile?.about || '';
+    this.imageSrc = this.profile?.imageSrc || '';
   }
 
   // ---------- Portrait handling ----------
@@ -123,10 +82,8 @@ export class ActionDrawerComponent implements OnInit, OnChanges {
     }
 
     try {
-      // compress to width 1200px with 0.85 quality
-      const dataUrl = await this.compressImage(file, 1200, 0.85);
-      this.localPreview = dataUrl;
-      this.localImageSrc = null;
+      this.imageSrcPreview = file;
+      this.imageSrc = null;
     } catch (err) {
       console.error('Error compressing portrait', err);
       alert('Failed to process the image. Please try a different file.');
@@ -136,7 +93,7 @@ export class ActionDrawerComponent implements OnInit, OnChanges {
   // ---------- Testimonials CRUD + modal handling ----------
   openTestimonialModal() {
     this.editingTestimonialIndex = null;
-    this.tm = {
+    const tm = {
       name: '',
       relationship: '',
       message: '',
@@ -151,14 +108,14 @@ export class ActionDrawerComponent implements OnInit, OnChanges {
   }
 
   editTestimonial(i: number) {
-    const t = this.localTestimonials[i];
+    const t = this.profile?.testimonials?.[i];
     this.editingTestimonialIndex = i;
-    this.tm = {
-      name: t.name,
-      relationship: t.relationship,
-      message: t.message,
+    const tm = {
+      name: t?.name,
+      relationship: t?.relationShip,
+      message: t?.message,
       file: null,
-      preview: t.photo || null,
+      preview: t?.photoUrl || null,
     };
     this.testimonialModalOpen = true;
   }
@@ -166,7 +123,6 @@ export class ActionDrawerComponent implements OnInit, OnChanges {
   deleteTestimonial(i: number) {
     // temporary confirm; replace with nicer UI if desired
     if (!confirm('Delete this testimonial?')) return;
-    this.localTestimonials.splice(i, 1);
   }
 
   onTestimonialModalSave(payload: {
@@ -201,7 +157,7 @@ export class ActionDrawerComponent implements OnInit, OnChanges {
 
   closeTestimonialModal() {
     this.testimonialModalOpen = false;
-    this.tm = {
+    const tm = {
       name: '',
       relationship: '',
       message: '',
@@ -216,32 +172,39 @@ export class ActionDrawerComponent implements OnInit, OnChanges {
     const input = e.target as HTMLInputElement;
     if (!input.files) return;
     const files = Array.from(input.files);
-    Promise.all(files.map((f) => this.compressImage(f, 1200, 0.85))).then(
-      (dataUrls) => {
-        this.localGallery.push(...dataUrls);
-      }
-    );
+    // Promise.all(files.map((f) => this.compressImage(f, 1200, 0.85))).then(
+    //   (dataUrls) => {
+    //     this.localGallery.push(...dataUrls);
+    //   }
+    // );
   }
 
   removeGallery(i: number) {
-    this.localGallery.splice(i, 1);
+    this.profile?.gallery?.splice(i, 1);
   }
 
   // ---------- Save / Close ----------
-  onSave() {
+  async onSave() {
     // apply palettes
-    this.applyPalette(this.localPrimary, this.localSecondary);
+    this.applyPalette(this.primary, this.secondary);
+
+    let bannerImageStorageId = null;
+    try {
+      bannerImageStorageId = await this.peopleService.uploadPhoto(
+        this.imageSrcPreview!
+      );
+    } catch (error) {
+      console.log('ERROR uploading file : ', error);
+    }
 
     const payload = {
-      name: this.localName,
-      caption: this.localCaption,
-      imageSrc: this.localPreview || this.localImageSrc,
-      primary: this.localPrimary,
-      secondary: this.localSecondary,
-      gender: this.localGender,
-      about: this.localAbout,
-      testimonials: this.localTestimonials,
-      gallery: this.localGallery,
+      name: this.name,
+      caption: this.caption,
+      imageSrc: bannerImageStorageId || this.imageSrc,
+      primary: this.primary,
+      secondary: this.secondary,
+      gender: this.gender,
+      about: this.about,
     };
     // this.save.emit(payload);
 
@@ -260,42 +223,5 @@ export class ActionDrawerComponent implements OnInit, OnChanges {
     } catch (e) {
       // ignore
     }
-  }
-
-  // ---------- Utility: compress image using canvas (client-side) ----------
-  compressImage(file: File, maxWidth = 1200, quality = 0.85): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        img.onload = () => {
-          const ratio = img.width / img.height;
-          const w = Math.min(maxWidth, img.width);
-          const h = Math.round(w / ratio);
-          const canvas = document.createElement('canvas');
-          canvas.width = w;
-          canvas.height = h;
-          const ctx = canvas.getContext('2d');
-          if (!ctx) return reject(new Error('Canvas not supported'));
-          ctx.imageSmoothingEnabled = true;
-          ctx.imageSmoothingQuality = 'high';
-          ctx.drawImage(img, 0, 0, w, h);
-          // pick webp when supported for smaller sizes
-          const supportsWebP =
-            canvas.toDataURL('image/webp').indexOf('data:image/webp') === 0;
-          const type = supportsWebP
-            ? 'image/webp'
-            : file.type === 'image/png'
-            ? 'image/png'
-            : 'image/jpeg';
-          const dataUrl = canvas.toDataURL(type, quality);
-          resolve(dataUrl);
-        };
-        img.onerror = reject;
-        img.src = ev.target?.result as string;
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
   }
 }

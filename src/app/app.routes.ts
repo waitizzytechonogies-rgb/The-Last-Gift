@@ -4,6 +4,7 @@ import { SignInComponent } from './auth/signin.component';
 import { SignUpComponent } from './auth/signup.component';
 import { HomeComponent } from './home/home.component';
 import { PersonComponent } from './person/person.component';
+import { DriveGalleryComponent } from './drive-gallary/drive-gallery.component';
 
 /**
  * Main routing configuration for the Angular 17 + Firebase app.
@@ -26,6 +27,11 @@ export const routes: Routes = [
     path: 'person/:id',
     component: PersonComponent,
     canActivate: [authGuard], // protect person pages
+  },
+  {
+    path: 'person/:id/slideshow',
+    component: DriveGalleryComponent,
+    // canActivate: [authGuard], // protect person pages
   },
   {
     path: 'signup',

@@ -2,8 +2,8 @@ import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { PeopleService } from '../people.service';
 import { AuthService } from '../auth/auth.service';
+import { PeopleService } from '../services/people/people.services';
 
 @Component({
   selector: 'app-home',
@@ -71,12 +71,10 @@ import { AuthService } from '../auth/auth.service';
           <label class="block mb-2">
             <div class="text-sm">Description</div>
             <textarea
-              [(ngModel)]="form.description"
+              [(ngModel)]="form.about"
               class="w-full p-2 border rounded"
             ></textarea>
           </label>
-
-
 
           <div class="flex justify-end gap-2">
             <button (click)="showAdd = false" class="px-3 py-1">Cancel</button>
@@ -100,7 +98,7 @@ export class HomeComponent {
   people: any[] = [];
   showAdd = false;
   adding = false;
-  form = { name: '', dob: '', description: '' };
+  form = { name: '', dob: '', about: '' };
   private photoFile: File | null = null;
 
   constructor(private ps: PeopleService, public auth: AuthService) {
@@ -140,13 +138,13 @@ export class HomeComponent {
           dob: this.form.dob
             ? new Date(this.form.dob).toISOString()
             : undefined,
-          description: this.form.description?.trim(),
+          about: this.form.about?.trim(),
         },
         this.photoFile
       );
 
       // reset & reload
-      this.form = { name: '', dob: '', description: '' };
+      this.form = { name: '', dob: '', about: '' };
       this.photoFile = null;
       this.showAdd = false;
       await this.load();

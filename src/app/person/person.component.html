@@ -1,4 +1,4 @@
-<div *ngIf="person; else loading">
+<div *ngIf="person?.id; else loading">
   <!-- Header -->
   <section class="relative">
     <div
@@ -46,14 +46,14 @@
 
             <p class="leading-[1] text-[4.5rem] font-extrabold mt-2">
               <span class="block" style="font-family: 'Parisienne', cursive">{{
-                name
+                this.person?.name
               }}</span>
             </p>
 
             <blockquote
               class="mt-6 text-lg md:text-xl italic border-black border-l-4 pl-4 max-w-xl"
             >
-              <span>{{ caption }}</span>
+              <span>{{ this.person?.caption }}</span>
               <!-- <span
                 >Love was her profession — She taught it, lived it, and left it
                 with us.</span 
@@ -65,8 +65,8 @@
           <div class="flex justify-center md:justify-end">
             <!-- When editing, show live preview with slightly larger size -->
             <img
-              [src]="[imageSrc || '../../assets/meeka-latest.png']"
-              alt="{{ name }}"
+              [src]="[this.person?.imageSrc || '../../assets/meeka.jpeg']"
+              alt="{{ this.person?.name }}"
               class="w-80 md:w-[520px] h-[640px] md:h-[700px] object-cover rounded-2xl shadow-2xl"
             />
           </div>
@@ -77,7 +77,7 @@
           class="mt-12 bg-[var(--primary)] text-[var(--secondary)] p-8 rounded-lg text-white"
         >
           <h2 class="text-3xl mb-4">About Her Life</h2>
-          <p class="leading-relaxed">{{ aboutText }}</p>
+          <p class="leading-relaxed">{{ this.person?.about }}</p>
         </section>
 
         <!-- Testimonials -->
@@ -97,12 +97,17 @@
                 (touchend)="onTouchEnd()"
               >
                 <div
-                  *ngFor="let t of testimonials"
+                  *ngFor="let t of this.person?.testimonials"
                   class="w-full flex-shrink-0 p-12 bg-[var(--primary)] text-[var(--secondary)] min-h-[180px] flex flex-col justify-center"
                   aria-live="polite"
                 >
+                  <img
+                    class="w-40 h-40 border rounded"
+                    [src]="this.person?.imageSrc"
+                    alt=""
+                  />
                   <p class="text-lg md:text-xl italic">“{{ t.message }}”</p>
-                  <p class="mt-4 text-sm font-medium">— {{ t.author }}</p>
+                  <p class="mt-4 text-sm font-medium">— {{ t.name }}</p>
                 </div>
               </div>
             </div>
@@ -126,7 +131,7 @@
 
             <div class="flex justify-center gap-2 mt-4">
               <button
-                *ngFor="let _ of testimonials; let i = index"
+                *ngFor="let _ of this.person?.testimonials; let i = index"
                 (click)="goTo(i)"
                 [ngClass]="{
                   'bg-primary': i === currentIndex,
@@ -147,7 +152,7 @@
             class="flex items-center gap-4 overflow-x-auto scroll-smooth snap-x snap-mandatory px-4"
           >
             <img
-              *ngFor="let g of gallery"
+              *ngFor="let g of this.person?.gallery"
               [src]="g"
               alt="memory"
               class="flex-shrink-0 w-80 h-80 rounded-lg object-cover snap-center transition-transform duration-300 hover:scale-105"
@@ -174,9 +179,6 @@
 
 <app-action-drawer
   [open]="drawerOpen"
-  [name]="name"
-  [caption]="caption"
-  [imageSrc]="imageSrc"
-  [testimonials]="testimonials"
+  [person]="person"
   (close)="onClose()"
 ></app-action-drawer>

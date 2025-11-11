@@ -1,0 +1,136 @@
+<div class="relative p-2">
+  <div class="flex items-center justify-between mb-3">
+    <div class="flex items-center gap-3">
+      <img src="../../assets/logo.png" alt="logo" class="w-10 opacity-90" />
+      <div class="text-sm text-slate-300">Album</div>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <button
+        class="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-3 py-1 rounded"
+        (click)="openSlideshow()"
+        title="Start slideshow"
+      >
+        <!-- play icon -->
+        <svg
+          class="w-4 h-4"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+        >
+          <path
+            d="M3 22v-20l18 10-18 10z"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+        Slide show
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="flex flex-col items-center justify-center py-12">
+    <img
+      src="../../assets/logo.png"
+      alt="logo"
+      class="w-20 opacity-80 mb-4 animate-pulse"
+    />
+    <div class="text-sm text-slate-300">Loading photos...</div>
+  </div>
+
+  <div *ngIf="error" class="text-center text-red-400 py-8">{{ error }}</div>
+
+  <div
+    *ngIf="!loading && images.length === 0"
+    class="text-center text-slate-300 py-8"
+  >
+    No photos found in this folder.
+  </div>
+
+  <!-- Grid of thumbnails -->
+  <div
+    class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"
+    *ngIf="images.length"
+  >
+    <button
+      *ngFor="let g of images; let i = index"
+      (click)="openSlideshow(i)"
+      class="block w-full h-36 overflow-hidden rounded-md focus:outline-none relative group bg-gray-100"
+      title="{{ g.name }}"
+    >
+      <img
+        [src]="g.thumbnailLink || g.viewUrl"
+        [alt]="g.name"
+        class="w-full h-full object-cover transform transition-transform duration-200 group-hover:scale-105"
+        loading="lazy"
+      />
+      <div
+        class="absolute left-2 top-2 bg-black/40 text-white text-xs px-2 py-1 rounded"
+      >
+        {{ i + 1 }}
+      </div>
+    </button>
+  </div>
+
+  <!-- FULLSCREEN Slideshow modal -->
+  <div
+    *ngIf="slideshowOpen"
+    class="fixed inset-0 z-70 flex items-center justify-center bg-black/95"
+  >
+    <div class="absolute inset-0 flex items-center justify-center">
+      <!-- left prev button -->
+      <button
+        (click)="prev()"
+        class="absolute left-4 top-1/2 -translate-y-1/2 bg-black/40 text-white rounded-full w-12 h-12 flex items-center justify-center z-20"
+      >
+        ‹
+      </button>
+
+      <!-- right next button -->
+      <button
+        (click)="next()"
+        class="absolute right-4 top-1/2 -translate-y-1/2 bg-black/40 text-white rounded-full w-12 h-12 flex items-center justify-center z-20"
+      >
+        ›
+      </button>
+
+      <!-- image container -->
+      <div class="max-w-[95vw] max-h-[95vh] mx-auto z-10">
+        <img
+          [src]="currentImage?.viewUrl"
+          [alt]="currentImage?.name"
+          class="w-full h-auto max-h-screen object-contain block mx-auto"
+          (load)="preloadNext()"
+        />
+        <div class="mt-2 text-center text-sm text-slate-200">
+          {{ currentImage?.name }}
+        </div>
+      </div>
+
+      <!-- top controls (close / play / pause) -->
+      <div class="absolute right-4 top-4 flex items-center gap-2 z-30">
+        <button
+          (click)="togglePlay()"
+          class="bg-white/10 hover:bg-white/20 text-white px-3 py-1 rounded"
+        >
+          <span *ngIf="playing">Pause</span>
+          <span *ngIf="!playing">Play</span>
+        </button>
+        <button
+          (click)="closeSlideshow()"
+          class="bg-transparent text-white px-3 py-1 rounded"
+        >
+          Close ✕
+        </button>
+      </div>
+
+      <!-- bottom pager -->
+      <div
+        class="absolute bottom-6 left-1/2 -translate-x-1/2 text-white text-sm z-30"
+      >
+        Image {{ currentIndex + 1 }} / {{ images.length }}
+      </div>
+    </div>
+  </div>
+</div>
