@@ -144,32 +144,68 @@
         </section>
 
         <!-- Gallery -->
+        <!-- GALLERY OF MEMORIES -->
         <section class="py-8">
-          <h3 class="text-2xl mb-4 text-white">Gallery of Memories</h3>
+          <div class="flex items-center justify-between">
+            <h3 class="text-2xl mb-4 text-white">Gallery of Memories</h3>
+            <button
+              (click)="slideshowMemories.open(0)"
+              class="px-3 py-1 rounded bg-white/10 hover:bg-white/20 text-white"
+            >
+              Slideshow
+            </button>
+          </div>
+
           <div
             class="flex items-center gap-4 overflow-x-auto scroll-smooth snap-x snap-mandatory px-4"
           >
             <img
-              *ngFor="let g of gallery"
+              *ngFor="let g of gallery; let i = index"
               [src]="'../../assets/images/meeka/' + g"
               [alt]="g"
               class="flex-shrink-0 w-80 h-80 rounded-lg object-cover snap-center transition-transform duration-300 hover:scale-105"
+              (click)="slideshowMemories.open(i)"
             />
           </div>
+
+          <!-- Slideshow for Gallery of Memories -->
+          <app-gallery-slideshow
+            #slideshowMemories
+            [images]="gallery"
+            basePath="assets/images/meeka/"
+          ></app-gallery-slideshow>
         </section>
 
+        <!-- SOLO GALLERY -->
         <section class="py-8">
-          <h3 class="text-2xl mb-4 text-white">Solo</h3>
+          <div class="flex items-center justify-between">
+            <h3 class="text-2xl mb-4 text-white">Solo</h3>
+            <button
+              (click)="slideshowSolo.open(0)"
+              class="px-3 py-1 rounded bg-white/10 hover:bg-white/20 text-white"
+            >
+              Slideshow
+            </button>
+          </div>
+
           <div
             class="flex items-center gap-4 overflow-x-auto scroll-smooth snap-x snap-mandatory px-4"
           >
             <img
-              *ngFor="let g of gallerySolo"
+              *ngFor="let g of gallerySolo; let i = index"
               [src]="'../../assets/images/meeka-solo/' + g"
               [alt]="g"
               class="flex-shrink-0 w-80 h-80 rounded-lg object-cover snap-center transition-transform duration-300 hover:scale-105"
+              (click)="slideshowSolo.open(i)"
             />
           </div>
+
+          <!-- Slideshow for Solo Gallery -->
+          <app-gallery-slideshow
+            #slideshowSolo
+            [images]="gallerySolo"
+            basePath="assets/images/meeka-solo/"
+          ></app-gallery-slideshow>
         </section>
       </div>
     </div>
@@ -197,3 +233,5 @@
   [testimonials]="testimonials"
   (close)="onClose()"
 ></app-action-drawer>
+
+<app-gallery-slideshow #slideshow [images]="gallery"></app-gallery-slideshow>

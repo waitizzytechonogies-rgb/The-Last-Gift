@@ -8,11 +8,18 @@ import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { ActionDrawerComponent } from '../action-drawer/action-drawer.component';
 import { GALLERY, GALLERY_SOLO } from '../shared/constants';
+import { GallerySlideshowComponent } from '../gallery-slideshow/gallery-slideshow.component';
 
 @Component({
   standalone: true,
   selector: 'app-person',
-  imports: [CommonModule, RouterModule, FormsModule, ActionDrawerComponent],
+  imports: [
+    CommonModule,
+    RouterModule,
+    FormsModule,
+    ActionDrawerComponent,
+    GallerySlideshowComponent,
+  ],
   templateUrl: './person.component.html',
   styleUrls: ['./person.component.scss'],
 })

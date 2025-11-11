@@ -1,0 +1,45 @@
+<div
+  *ngIf="isOpen"
+  class="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
+  (click)="close()"
+>
+  <div
+    (click)="$event.stopPropagation()"
+    class="relative w-full h-full max-h-screen max-w-screen-lg flex flex-col items-center justify-center"
+  >
+    <!-- Close -->
+    <button
+      (click)="close()"
+      class="absolute top-6 right-6 rounded-full bg-white/10 hover:bg-white/20 p-2 text-white"
+    >
+      ✕
+    </button>
+
+    <!-- Prev -->
+    <button
+      (click)="prev(); $event.stopPropagation()"
+      class="absolute left-4 hidden md:flex items-center justify-center h-12 w-12 rounded-full bg-white/10 hover:bg-white/20 text-white"
+    >
+      ‹
+    </button>
+
+    <!-- Next -->
+    <button
+      (click)="next(); $event.stopPropagation()"
+      class="absolute right-4 hidden md:flex items-center justify-center h-12 w-12 rounded-full bg-white/10 hover:bg-white/20 text-white"
+    >
+      ›
+    </button>
+
+    <!-- Image -->
+    <img
+      [src]="getSrc(images[current])"
+      [alt]="images[current]"
+      class="max-h-[85vh] max-w-[90vw] object-contain rounded-md shadow-lg transition-opacity duration-500"
+    />
+
+    <!-- <div class="text-sm text-white/70 mt-3">
+      {{ current + 1 }} / {{ images.length }}
+    </div> -->
+  </div>
+</div>
