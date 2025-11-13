@@ -1,6 +1,12 @@
 <div class="min-h-screen bg-slate-50">
   <!-- Navbar -->
-  <nav class="bg-white shadow p-4" *ngIf="!router.url.includes('/person')">
+  <nav
+    class="bg-white shadow p-4"
+    *ngIf="
+      !router.url.includes('/person') &&
+      !router.url.includes('/add-testimonial')
+    "
+  >
     <div class="max-w-4xl mx-auto flex justify-between items-center">
       <a routerLink="/" class="font-semibold text-lg">People</a>
 

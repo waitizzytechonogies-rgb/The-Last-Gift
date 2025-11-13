@@ -4,6 +4,7 @@ import { SignInComponent } from './auth/signin.component';
 import { SignUpComponent } from './auth/signup.component';
 import { HomeComponent } from './home/home.component';
 import { PersonComponent } from './person/person.component';
+import { AddTestimonialPageComponent } from './addTestimonialPage/addTestimonialPage.component';
 
 /**
  * Main routing configuration for the Angular 17 + Firebase app.
@@ -21,6 +22,10 @@ export const routes: Routes = [
     component: HomeComponent,
     pathMatch: 'full', // ✅ matches only the exact root ('/')
     canActivate: [authGuard],
+  },
+  {
+    path: 'add-testimonial',
+    component: AddTestimonialPageComponent,
   },
   {
     path: 'person/:id',
