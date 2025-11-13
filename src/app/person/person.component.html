@@ -273,6 +273,7 @@
           <!-- Slideshow for Gallery of Memories -->
           <app-gallery-slideshow
             #slideshowMemories
+            [isMemory]="true"
             [images]="gallery"
             basePath="assets/images/meeka/"
           ></app-gallery-slideshow>
@@ -297,7 +298,9 @@
           >
             <img
               *ngFor="let g of gallerySolo; let i = index"
-              [src]="'../../assets/images/meeka-solo/' + g"
+              [src]="
+                '../../assets/images/meeka-solo/image-' + (i + 1) + '.jpeg'
+              "
               [alt]="g"
               class="flex-shrink-0 w-80 h-80 rounded-lg object-cover snap-center transition-transform duration-300 hover:scale-105"
               (click)="slideshowSolo.open(i)"

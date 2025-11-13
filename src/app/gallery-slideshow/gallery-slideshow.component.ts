@@ -10,6 +10,7 @@ import { FormsModule } from '@angular/forms';
 })
 export class GallerySlideshowComponent {
   @Input() images: string[] = [];
+  @Input() isMemory?: boolean = false;
   @Input() basePath: string = ''; // 👈 new input to define folder path
 
   isOpen = false;
@@ -68,6 +69,10 @@ export class GallerySlideshowComponent {
   }
 
   getSrc(img: string): string {
-    return this.basePath + img;
+    const url =
+      this.basePath + (!this.isMemory ? `image-${this.current + 1}.jpeg` : img);
+
+    console.log(url);
+    return url;
   }
 }
