@@ -1,112 +1,112 @@
 // src/app/person.component.ts
-import { Component } from '@angular/core';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { CommonModule, DatePipe } from '@angular/common';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+
 import { PeopleService } from '../people.service';
 import { AuthService } from '../auth/auth.service';
-import { BrowserModule } from '@angular/platform-browser';
-import { FormsModule } from '@angular/forms';
 import { ActionDrawerComponent } from '../action-drawer/action-drawer.component';
-import { GALLERY, GALLERY_SOLO } from '../shared/constants';
 import { GallerySlideshowComponent } from '../gallery-slideshow/gallery-slideshow.component';
+import { GALLERY, GALLERY_SOLO } from '../shared/constants';
+
+type Testimonial = {
+  author?: string;
+  message?: string;
+  relationShip?: string;
+};
 
 @Component({
   standalone: true,
   selector: 'app-person',
+  templateUrl: './person.component.html',
+  styleUrls: ['./person.component.scss'],
   imports: [
     CommonModule,
-    RouterModule,
     FormsModule,
     ActionDrawerComponent,
     GallerySlideshowComponent,
   ],
-  templateUrl: './person.component.html',
-  styleUrls: ['./person.component.scss'],
 })
-export class PersonComponent {
+export class PersonComponent implements OnInit, OnDestroy {
+  // data
   person: any = null;
+  testimonials: Testimonial[] = [];
+
+  // hero / UI
+  name = 'Muriel Pushparaj';
+  caption = 'Love came down at Christmas: so did she!';
+  aboutText = `Born on a Christmas day in 1937 as the eldest of the nine children of Francis Odilon and Jeyarathi Isabella, she married Mr. V K Pushparaj on 10th June 1959, and blessed with eight children and ten grandchildren. She lived a legacy that bore the fruits of the Spirit -love, joy, peace, patience, kindness, goodness, faithfulness, gentleness, and self-control.`;
+  imageSrc: string | null = null;
+  drawerOpen = false;
+
+  // misc
   qrUrl = '';
   downloading = false;
   copied = false;
 
-  currentIndex: number = 0;
-  autoPlay: boolean = true; // set to false to disable autoplay
-  autoPlayDelay: number = 5000; // ms between slides
-  private autoplayTimer: any = null;
-
-  // touch/swipe tracking
-  private touchStartX: number | null = null;
-  private touchDeltaX: number = 0;
-  private swipeThreshold: number = 50; // px required to consider a swipe
-
-  name: string = 'Muriel Pushparaj';
-  caption: string = 'Love came down at Chrismas: so did she!';
-
-  // Navigation / sections preview (editable)
-  sections = [
-    { title: 'About Her Life', excerpt: 'A brief life story and highlights.' },
-    {
-      title: 'Early Life',
-      excerpt: 'Childhood, education and early memories.',
-    },
-    {
-      title: "Children's Testimonials",
-      excerpt:
-        'Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.',
-    },
-    { title: 'Friends & Family Wishes', excerpt: 'Messages from loved ones.' },
-    {
-      title: 'Gallery of Memories',
-      excerpt: 'Photos from different seasons of life.',
-    },
-  ];
-
-  aboutText: string = `Murial's life was devoted to family, technology and bringing joy to everyone she met. She loved the holidays and cherished the time spent with Meeka and family.`;
-
-  testimonials = [
-    {
-      author: 'Asha (daughter)',
-      message:
-        'You taught me everything—kindness first. Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.Short notes and photos from her children.',
-    },
-    { author: 'Ravi (son)', message: 'My first mentor and forever guide.' },
-    {
-      author: 'Priya (friend)',
-      message: 'We laughed and cooked together—memories I treasure.',
-    },
-    {
-      author: 'Priya (friend)',
-      message: 'We laughed and cooked together—memories I treasure.',
-    },
-    {
-      author: 'Priya (friend)',
-      message: 'We laughed and cooked together—memories I treasure.',
-    },
-    {
-      author: 'Priya (friend)',
-      message: 'We laughed and cooked together—memories I treasure.',
-    },
-  ];
-
+  // galleries
   gallery: string[] = GALLERY;
   gallerySolo: string[] = GALLERY_SOLO;
-  imageSrc: string | null = null;
-  drawerOpen = false;
 
-  isLoggedIn = !!this.authService.currentUser;
+  // testimonial carousel state
+  currentIndex = 0;
+  isFullscreenOpen = false;
+
+  // autoplay
+  autoPlay = true;
+  autoPlayDelay = 5000; // ms
+  private autoplayTimer: any = null;
+  private isInteracting = false; // set while user touches / hovers
+
+  // touch/swipe
+  private touchStartX: number | null = null;
+  private touchDeltaX = 0;
+  private swipeThreshold = 50; // px required to fire swipe
+
+  // auth
+  isLoggedIn = false;
 
   constructor(
     private route: ActivatedRoute,
     private ps: PeopleService,
     private authService: AuthService
   ) {
-    const id = this.route.snapshot.paramMap.get('id')!;
-    this.ps.get(id).then((p) => {
-      this.person = p;
-    });
+    this.isLoggedIn = !!this.authService.currentUser;
   }
 
-  ngOnInit(): void {
+  // -----------------------
+  // Lifecycle
+  // -----------------------
+  async ngOnInit(): Promise<void> {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      try {
+        const p = await this.ps.get(id);
+        this.person = p;
+        this.testimonials = Array.isArray(this.person?.testimonials)
+          ? this.person.testimonials
+          : [];
+      } catch (err) {
+        console.error('Failed to load person', err);
+        this.person = null;
+        this.testimonials = [];
+      }
+    }
+
+    // load hero overrides from localStorage (if present)
+    try {
+      const hero = localStorage.getItem('memorial_hero');
+      if (hero) {
+        const parsed = JSON.parse(hero);
+        this.name = parsed.name ?? this.name;
+        this.caption = parsed.caption ?? this.caption;
+        this.imageSrc = parsed.imageSrc ?? this.imageSrc;
+      }
+    } catch (e) {
+      // ignore invalid localStorage data
+    }
+
     if (this.autoPlay) this.startAuto();
   }
 
@@ -114,28 +114,44 @@ export class PersonComponent {
     this.stopAuto();
   }
 
-  // navigate
+  // -----------------------
+  // Carousel navigation
+  // -----------------------
   next(): void {
+    if (!this.testimonials?.length) return;
     this.currentIndex = (this.currentIndex + 1) % this.testimonials.length;
   }
 
   prev(): void {
+    if (!this.testimonials?.length) return;
     this.currentIndex =
       (this.currentIndex - 1 + this.testimonials.length) %
       this.testimonials.length;
   }
 
   goTo(index: number): void {
+    if (!this.testimonials?.length) return;
     if (index < 0 || index >= this.testimonials.length) return;
     this.currentIndex = index;
   }
 
-  // autoplay
+  // -----------------------
+  // Auto-rotate
+  // -----------------------
   startAuto(): void {
     this.stopAuto();
-    if (!this.autoPlay) return;
+    if (!this.autoPlay || !this.testimonials?.length) return;
+    if (this.isInteracting || this.isFullscreenOpen) return;
+
     this.autoplayTimer = setInterval(() => {
-      this.next();
+      // guard again inside timer
+      if (
+        !this.isFullscreenOpen &&
+        !this.isInteracting &&
+        this.testimonials?.length
+      ) {
+        this.next();
+      }
     }, this.autoPlayDelay);
   }
 
@@ -146,57 +162,129 @@ export class PersonComponent {
     }
   }
 
-  // touch handlers for mobile swipe
+  resetAutoAfterInteraction(delay = 300): void {
+    // called after manual interaction to restart auto rotation
+    this.stopAuto();
+    setTimeout(() => {
+      if (this.autoPlay && !this.isFullscreenOpen) {
+        this.startAuto();
+      }
+    }, delay);
+  }
+
+  // handlers bound to template
+  onMouseEnter(): void {
+    this.isInteracting = true;
+    this.stopAuto();
+  }
+  onMouseLeave(): void {
+    this.isInteracting = false;
+    this.startAuto();
+  }
+
+  // -----------------------
+  // Touch / swipe support
+  // -----------------------
   onTouchStart(event: TouchEvent): void {
-    this.touchStartX = event.touches[0].clientX;
+    this.touchStartX = event.touches?.[0]?.clientX ?? null;
     this.touchDeltaX = 0;
-    this.stopAuto(); // pause while interacting
+    this.isInteracting = true;
+    this.stopAuto();
   }
 
   onTouchMove(event: TouchEvent): void {
     if (this.touchStartX === null) return;
-    const currentX = event.touches[0].clientX;
+    const currentX = event.touches?.[0]?.clientX ?? this.touchStartX;
     this.touchDeltaX = currentX - this.touchStartX;
-    // optionally: you could apply a temporary transform for drag UX
+    // NOTE: you could update a transform here for drag UX
   }
 
   onTouchEnd(): void {
-    if (this.touchStartX === null) return;
+    if (this.touchStartX === null) {
+      this.isInteracting = false;
+      this.startAuto();
+      return;
+    }
+
     if (Math.abs(this.touchDeltaX) > this.swipeThreshold) {
-      // swipe left -> next, swipe right -> prev
       if (this.touchDeltaX < 0) {
-        this.next();
+        this.next(); // swipe left -> next
       } else {
-        this.prev();
+        this.prev(); // swipe right -> prev
       }
     }
+
     this.touchStartX = null;
     this.touchDeltaX = 0;
-    if (this.autoPlay) this.startAuto(); // resume autoplay after interaction
+    this.isInteracting = false;
+    this.resetAutoAfterInteraction();
   }
 
-  edit() {
+  // -----------------------
+  // Fullscreen view
+  // -----------------------
+  openFullscreen(index = 0): void {
+    if (!this.testimonials?.length) return;
+    this.currentIndex = Math.max(
+      0,
+      Math.min(index, this.testimonials.length - 1)
+    );
+    this.isFullscreenOpen = true;
+    this.stopAuto();
+    document.body.style.overflow = 'hidden';
+  }
+
+  closeFullscreen(): void {
+    this.isFullscreenOpen = false;
+    document.body.style.overflow = '';
+    this.startAuto();
+  }
+
+  // keyboard navigation while fullscreen open
+  @HostListener('window:keydown', ['$event'])
+  onKeydownFullscreen(event: KeyboardEvent): void {
+    if (!this.isFullscreenOpen) return;
+
+    if (event.key === 'Escape') this.closeFullscreen();
+    else if (event.key === 'ArrowLeft') this.prev();
+    else if (event.key === 'ArrowRight') this.next();
+  }
+
+  // pause when tab/window hidden
+  @HostListener('window:visibilitychange')
+  onVisibilityChange(): void {
+    if (document.hidden) {
+      this.stopAuto();
+    } else {
+      this.startAuto();
+    }
+  }
+
+  // -----------------------
+  // Drawer / Edit
+  // -----------------------
+  edit(): void {
     this.openDrawer();
   }
 
-  // open the drawer (for example call from Edit button)
-  openDrawer() {
+  openDrawer(): void {
     this.drawerOpen = true;
   }
 
-  // handle close (no changes applied)
-  onClose() {
+  onClose(): void {
     this.drawerOpen = false;
   }
 
-  // handle save — payload: { name, caption, imageSrc }
-  onSave(payload: { name: string; caption: string; imageSrc: string | null }) {
-    // apply updates
+  onSave(payload: {
+    name?: string;
+    caption?: string;
+    imageSrc?: string | null;
+  }): void {
     if (payload.name) this.name = payload.name;
     if (payload.caption) this.caption = payload.caption;
-    if (payload.imageSrc) this.imageSrc = payload.imageSrc;
+    if (payload.imageSrc !== undefined)
+      this.imageSrc = payload.imageSrc ?? this.imageSrc;
 
-    // persist (same key you used earlier)
     localStorage.setItem(
       'memorial_hero',
       JSON.stringify({
@@ -206,7 +294,6 @@ export class PersonComponent {
       })
     );
 
-    // close drawer
     this.drawerOpen = false;
   }
 }

@@ -10,9 +10,9 @@ import { CommonModule } from '@angular/common';
 import { TestimonialService } from '../services/testimonial.service';
 
 interface Testimonial {
-  name: string;
-  relationship: string;
-  memory: string;
+  author: string;
+  relationShip: string;
+  message: string;
   createdAt: string;
 }
 
@@ -38,18 +38,18 @@ export class AddTestimonialPageComponent {
     private testimonialService: TestimonialService
   ) {
     this.form = this.fb.group({
-      name: ['', [Validators.required, Validators.maxLength(80)]],
-      relationship: ['', [Validators.required, Validators.maxLength(60)]],
-      memory: ['', [Validators.required, Validators.maxLength(2000)]],
+      author: ['', [Validators.required, Validators.maxLength(80)]],
+      relationShip: ['', [Validators.required, Validators.maxLength(60)]],
+      message: ['', [Validators.required, Validators.maxLength(2000)]],
     });
   }
 
   // typed access to controls
   get controls() {
     return this.form.controls as {
-      name: any;
-      relationship: any;
-      memory: any;
+      author: any;
+      relationShip: any;
+      message: any;
     };
   }
 
@@ -65,9 +65,9 @@ export class AddTestimonialPageComponent {
     }
 
     this.pendingTestimonial = {
-      name: (this.controls.name.value || '').trim(),
-      relationship: (this.controls.relationship.value || '').trim(),
-      memory: (this.controls.memory.value || '').trim(),
+      author: (this.controls.author.value || '').trim(),
+      relationShip: (this.controls.relationShip.value || '').trim(),
+      message: (this.controls.message.value || '').trim(),
       createdAt: new Date().toISOString(),
     };
 
