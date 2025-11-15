@@ -97,12 +97,12 @@ export class PersonComponent implements OnInit, OnDestroy {
     // load hero overrides from localStorage (if present)
     try {
       const hero = localStorage.getItem('memorial_hero');
-      if (hero) {
-        const parsed = JSON.parse(hero);
-        this.name = parsed.name ?? this.name;
-        this.caption = parsed.caption ?? this.caption;
-        this.imageSrc = parsed.imageSrc ?? this.imageSrc;
-      }
+      // if (hero) {
+      //   const parsed = JSON.parse(hero);
+      //   this.name = parsed.name ?? this.name;
+      //   this.caption = parsed.caption ?? this.caption;
+      //   this.imageSrc = parsed.imageSrc ?? this.imageSrc;
+      // }
     } catch (e) {
       // ignore invalid localStorage data
     }
@@ -139,20 +139,19 @@ export class PersonComponent implements OnInit, OnDestroy {
   // Auto-rotate
   // -----------------------
   startAuto(): void {
-    this.stopAuto();
-    if (!this.autoPlay || !this.testimonials?.length) return;
-    if (this.isInteracting || this.isFullscreenOpen) return;
-
-    this.autoplayTimer = setInterval(() => {
-      // guard again inside timer
-      if (
-        !this.isFullscreenOpen &&
-        !this.isInteracting &&
-        this.testimonials?.length
-      ) {
-        this.next();
-      }
-    }, this.autoPlayDelay);
+    // this.stopAuto();
+    // if (!this.autoPlay || !this.testimonials?.length) return;
+    // if (this.isInteracting || this.isFullscreenOpen) return;
+    // this.autoplayTimer = setInterval(() => {
+    //   // guard again inside timer
+    //   if (
+    //     !this.isFullscreenOpen &&
+    //     !this.isInteracting &&
+    //     this.testimonials?.length
+    //   ) {
+    //     this.next();
+    //   }
+    // }, this.autoPlayDelay);
   }
 
   stopAuto(): void {
